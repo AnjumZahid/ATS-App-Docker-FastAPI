@@ -1,9 +1,9 @@
-name: Deploy Streamlit App
+name: Deploy Streamlit App to Render
 
 on:
   push:
     branches:
-      - main  # Change if using a different branch
+      - main  # Trigger deployment on push to main branch
 
 jobs:
   deploy:
@@ -22,22 +22,21 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Upload to Server
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "."  
-          target: "/home/${{ secrets.SERVER_USER }}/app"
+      - name: Deploy to Render
+        run: |
+          curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{}'
 
-      - name: Restart Streamlit App with Secret
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            export GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
-            cd /home/${{ secrets.SERVER_USER }}/app
-            nohup streamlit run app.py --server.port=8501 --server.address=0.0.0.0 > streamlit.log 2>&1 &
+      - name: Set Environment Variables in Render (Optional)
+        run: |
+          curl -X PATCH "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/env-vars" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '[
+              {
+                "key": "GEMINI_API_KEY",
+                "value": "${{ secrets.GEMINI_API_KEY }}"
+              }
+            ]'
