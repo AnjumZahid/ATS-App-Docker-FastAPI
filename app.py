@@ -2,41 +2,52 @@ import streamlit as st
 import google.generativeai as genai
 from pypdf import PdfReader
 import re
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Configure the Streamlit Page
-st.set_page_config(page_title="ATS Resume Expert", layout= "wide")
-st.title("ATS Resume Expert") # for display
+st.set_page_config(page_title="ATS Resume Expert", layout="wide")
+st.title("ATS Resume Expert")  # for display
 
-# function to extract text from pdf
+# Function to extract text from PDF
 def extract_text_pdf(uploaded_file):
     reader = PdfReader(uploaded_file)
     pdf_txt = '\n'.join(page.extract_text() or "" for page in reader.pages)
-    return pdf_txt.strip() if pdf_txt.strip() else "no extractable text found in the PDF"
+    return pdf_txt.strip() if pdf_txt.strip() else "No extractable text found in the PDF"
 
-#conigure Gemini API
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+# Configure Gemini API using environment variable
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-#Function to generate responses using Gemini
+if GEMINI_API_KEY is None:
+    st.error("GEMINI_API_KEY is missing. Check your Render environment variables.")
+
+genai.configure(api_key=GEMINI_API_KEY)
+
+# Function to generate responses using Gemini
 def get_gemini_response(job_description, resume_text, prompt):
     model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content([job_description, resume_text, prompt])
     return response.text
 
-#define sidebar
+# Define sidebar
 with st.sidebar:
     st.header("Upload Resume & Job Description")
     uploaded_file = st.file_uploader("Upload your resume (PDF)", type=["pdf"])
     job_description = st.text_area("Enter Job Description")
 
-# define prompts for resume evaluation
+# Define prompts for resume evaluation
 ats_review_prompt = """
-You are an experience technical hr manager with ATS expertise. Evaluate the resume against job description
-"and provide a professional assesment, highlighting strengths, weaknesses, and missing keywords.
-Conclude with the summary of the candidate's alignment with the role."""
+You are an experienced technical HR manager with ATS expertise. Evaluate the resume against the job description
+and provide a professional assessment, highlighting strengths, weaknesses, and missing keywords.
+Conclude with a summary of the candidate's alignment with the role.
+"""
 
 percentage_match_prompt = """
-Analyse the resume against the job role description and provide only the percentage match as anumeric value.
-Do not include any additional text"""
+Analyze the resume against the job role description and provide only the percentage match as a numeric value.
+Do not include any additional text.
+"""
 
 # Initialize session state for responses
 if "ats_response" not in st.session_state:
@@ -90,4 +101,3 @@ if uploaded_file:
 # --- Error Handling ---
 elif (analyze_button or match_button) and not uploaded_file:
     st.warning("Please upload a resume before proceeding.")
-
