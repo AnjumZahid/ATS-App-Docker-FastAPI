@@ -2,4 +2,4 @@ __pycache__/
 *.pyc
 .streamlit
 resumeapp
-.env
+.env".env" 
