@@ -8,7 +8,7 @@ st.set_page_config(page_title="ATS Resume Expert", layout= "wide")
 st.title("ATS Resume Expert") # for display
 
 # function to extract text from pdf
-def extreact_text_pdf(uploaded_file):
+def extract_text_pdf(uploaded_file):
     reader = PdfReader(uploaded_file)
     pdf_txt = '\n'.join(page.extract_text() or "" for page in reader.pages)
     return pdf_txt.strip() if pdf_txt.strip() else "no extractable text found in the PDF"
@@ -60,7 +60,7 @@ st.divider()
 # --- Resume Processing ---
 if uploaded_file:
     st.success("Resume Uploaded Successfully")
-    resume_text = extreact_text_pdf(uploaded_file)
+    resume_text = extract_text_pdf(uploaded_file)
 
     # Left: Resume Analysis
     col1, col2 = st.columns([3, 1])  # Main content (3x), Right (1x)
