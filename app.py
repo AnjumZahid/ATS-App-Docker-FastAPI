@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure the Streamlit Page
-st.set_page_config(page_title="ATS Resume Expert", layout="wide")
+st.set_page_config(page_title="ATS Resume App", layout="wide")
 st.title("ATS-Resume-Analyzer")  # for display
 
 # Function to extract text from PDF
