@@ -9,7 +9,7 @@ load_dotenv()
 
 # Configure the Streamlit Page
 st.set_page_config(page_title="ATS Resume Expert", layout="wide")
-st.title("ATS Resume Analyzer")  # for display
+st.title("ATS-Resume-Analyzer")  # for display
 
 # Function to extract text from PDF
 def extract_text_pdf(uploaded_file):
