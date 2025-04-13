@@ -4,7 +4,8 @@ import requests
 st.set_page_config(page_title="ATS Resume App", layout="wide")
 st.title("ATS-Resume-Analyzer")
 
-backend_url = "http://localhost:8000"  # Replace with public URL after deploy
+# backend_url = "http://localhost:8000"  # Replace with public URL after deploy
+backend_url = "https://ats-app-docker-fastapi-backend.onrender.com"
 
 with st.sidebar:
     uploaded_file = st.file_uploader("Upload your resume (PDF)", type=["pdf"])
